@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoCo Music · Android APP UI 设计稿</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7;
+  --paper:#ffffff;
+  --line:#e3e5ea;
+  --line-soft:#eef0f3;
+  --ink:#14161c;
+  --ink-2:#545a68;
+  --ink-3:#8b909d;
+  --brand:#e5484d;
+  --brand-soft:rgba(229,72,77,.10);
+  --amber:#e8930c;
+  --green:#12a150;
+  --app-bg:#0c0e14;
+  --app-surface:#161a23;
+  --app-surface-2:#1e232e;
+  --app-line:#2a303d;
+  --app-ink:#f2f4f8;
+  --app-ink-2:#a8b0c0;
+  --app-ink-3:#6b7488;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  font-family:'Outfit','Noto Sans SC',sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ---------- header ---------- */
+.hd{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:44px}
+.hd .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--brand);background:var(--brand-soft);
+  padding:5px 11px;border-radius:6px;margin-bottom:16px;
+}
+.hd h1{font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.hd p{color:var(--ink-2);font-size:15px;margin-top:10px;max-width:760px}
+.hd .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:500;color:var(--ink-2);
+  background:var(--paper);border:1px solid var(--line);
+  padding:5px 11px;border-radius:999px;
+}
+.chip svg{width:14px;height:14px;color:var(--ink-3)}
+
+/* ---------- section ---------- */
+.sec{margin-bottom:64px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.sec-h .n{
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;
+  color:var(--brand);background:var(--brand-soft);
+  padding:3px 8px;border-radius:5px;
+}
+.sec-h h2{font-size:23px;font-weight:600;letter-spacing:-.01em}
+.sec-sub{color:var(--ink-2);font-size:14.5px;margin-bottom:26px;max-width:820px}
+
+/* ---------- design tokens ---------- */
+.tokgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+.tok{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px}
+.tok h4{font-size:13px;font-weight:600;color:var(--ink-3);margin-bottom:12px;letter-spacing:.03em;text-transform:uppercase}
+.sw{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.sw div{flex:1;height:52px}
+.swrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.swrow .dot{width:26px;height:26px;border-radius:7px;border:1px solid rgba(0,0,0,.07);flex:none}
+.swrow code{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-2);margin-left:auto}
+.tok p.note{font-size:12.5px;color:var(--ink-3);margin-top:10px;line-height:1.5}
+
+.typelist{display:flex;flex-direction:column;gap:11px}
+.typerow{display:flex;align-items:baseline;gap:14px;border-bottom:1px dashed var(--line);padding-bottom:9px}
+.typerow .lbl{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-3);width:130px;flex:none}
+
+/* ---------- phone mockup ---------- */
+.phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px}
+.pcol{display:flex;flex-direction:column;align-items:center}
+.plabel{font-size:13.5px;font-weight:600;margin-bottom:4px;text-align:center}
+.pdesc{font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:14px;line-height:1.5;max-width:290px}
+.phone{
+  width:300px;height:620px;background:var(--app-bg);
+  border-radius:34px;padding:9px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04),0 18px 44px -12px rgba(20,22,28,.22);
+  position:relative;flex:none;
+}
+.phone::after{
+  content:"";position:absolute;inset:9px;border-radius:26px;
+  border:1px solid rgba(255,255,255,.07);pointer-events:none;
+}
+.scr{
+  width:100%;height:100%;background:var(--app-bg);border-radius:26px;
+  overflow:hidden;display:flex;flex-direction:column;position:relative;
+  color:var(--app-ink);font-size:13px;
+}
+.scr.pad{padding:0 14px}
+
+/* status bar */
+.sbar{
+  height:32px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;font-size:11.5px;font-weight:600;color:var(--app-ink);letter-spacing:.02em;
+}
+.sbar .icons{display:flex;gap:5px;align-items:center;opacity:.85}
+.sbar svg{width:13px;height:13px}
+
+/* app bar */
+.ab{flex:none;padding:2px 14px 10px;display:flex;align-items:center;gap:10px}
+.ab .ttl{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.ab .sp{flex:1}
+.abbtn{
+  width:32px;height:32px;border-radius:10px;background:var(--app-surface-2);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.abbtn svg{width:16px;height:16px;color:var(--app-ink-2)}
+
+/* search field */
+.sf{
+  margin:0 14px 12px;background:var(--app-surface);border:1px solid var(--app-line);
+  border-radius:12px;padding:9px 11px;display:flex;align-items:center;gap:9px;flex:none;
+}
+.sf svg{width:15px;height:15px;color:var(--app-ink-3);flex:none}
+.sf span{color:var(--app-ink);font-size:13.5px}
+.sf .sp{flex:1}
+.sf .clr{width:17px;height:17px;border-radius:50%;background:var(--app-ink-3);display:flex;align-items:center;justify-content:center}
+.sf .clr svg{width:10px;height:10px;color:var(--app-bg)}
+
+/* chips */
+.chips{display:flex;gap:7px;padding:0 14px 10px;overflow:hidden;flex:none}
+.pchip{
+  display:inline-flex;align-items:center;gap:5px;flex:none;
+  background:var(--app-surface);border:1px solid var(--app-line);
+  padding:5px 10px;border-radius:999px;font-size:12px;color:var(--app-ink-2);
+  white-space:nowrap;
+}
+.pchip.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:500}
+.pchip .hdot{width:6px;height:6px;border-radius:50%;flex:none}
+.h-ok{background:var(--green)}.h-bad{background:#7c3aed)}.h-mid{background:var(--amber)}.h-off{background:var(--app-ink-3)}
+
+/* segmented */
+.seg{display:flex;background:var(--app-surface);border:1px solid var(--app-line);border-radius:10px;padding:2px;margin:0 14px 10px;flex:none}
+.seg div{flex:1;text-align:center;padding:5px 0;font-size:12px;color:var(--app-ink-2);border-radius:8px}
+.seg div.on{background:var(--app-surface-2);color:var(--app-ink);font-weight:600}
+
+/* list */
+.lst{flex:1;overflow:hidden;padding:0 14px}
+.sect-t{
+  font-size:11.5px;font-weight:600;color:var(--app-ink-3);letter-spacing:.06em;
+  text-transform:uppercase;margin:12px 0 7px;display:flex;align-items:center;gap:7px;
+}
+.sect-t .ln{flex:1;height:1px;background:var(--app-line)}
+.trk{display:flex;align-items:center;gap:10px;padding:7px 0}
+.cov{
+  width:42px;height:42px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,#3a4152,#222836);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:rgba(255,255,255,.75);
+  position:relative;overflow:hidden;
+}
+.cov::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(229,72,77,.5),transparent 70%)}
+.cov.t2::after{background:radial-gradient(circle at 70% 30%,rgba(232,147,12,.45),transparent 70%)}
+.cov.t3::after{background:radial-gradient(circle at 40% 70%,rgba(18,161,80,.42),transparent 70%)}
+.trk .info{flex:1;min-width:0}
+.trk .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk .s{font-size:11px;color:var(--app-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.trk .rt{display:flex;align-items:center;gap:4px;flex:none}
+.trk .dur{font-size:10.5px;color:var(--app-ink-3);font-family:'JetBrains Mono',monospace;margin-left:6px}
+.ia{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.ia svg{width:15px;height:15px;color:var(--app-ink-2)}
+.ia.on svg{color:var(--brand)}
+.qb{
+  font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;display:inline-block;
+  letter-spacing:.02em;font-family:'JetBrains Mono',monospace;margin-left:5px;
+  vertical-align:1px;
+}
+.qb.hi{background:rgba(232,147,12,.16);color:#f0a93a}
+.qb.lo{background:var(--app-surface-2);color:var(--app-ink-3)}
+.qb.lo2{background:rgba(229,72,77,.15);color:#f0737a}
+.prov{
+  font-size:9px;padding:1px 4px;border-radius:3px;display:inline-block;
+  background:var(--app-surface-2);color:var(--app-ink-3);font-weight:600;margin-left:5px;
+  vertical-align:1px;
+}
+.fb{
+  font-size:9.5px;padding:2px 5px;border-radius:4px;flex:none;
+  background:rgba(232,147,12,.16);color:#f0a93a;font-weight:600;
+}
+
+/* mini player */
+.mini{
+  margin:0 10px 8px;background:var(--app-surface-2);border:1px solid var(--app-line);
+  border-radius:13px;padding:8px 10px;display:flex;align-items:center;gap:9px;flex:none;
+}
+.mini .cov{width:34px;height:34px;border-radius:7px}
+.mini .info{flex:1;min-width:0}
+.mini .t{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .s{font-size:10.5px;color:var(--app-ink-3);margin-top:1px}
+.mini .pb{display:flex;align-items:center;gap:2px}
+.mini .pb svg{width:16px;height:16px;color:var(--app-ink)}
+
+/* bottom nav */
+.nav{
+  flex:none;height:58px;border-top:1px solid var(--app-line);
+  display:flex;align-items:center;padding:0 6px 4px;
+}
+.nav .it{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--app-ink-3)}
+.nav .it svg{width:19px;height:19px}
+.nav .it span{font-size:9.5px;font-weight:500}
+.nav .it.on{color:var(--brand)}
+.nav .it.on span{font-weight:600}
+
+/* player screen */
+.pll{flex:1;display:flex;flex-direction:column;padding:0 22px;overflow:hidden;min-height:0}
+.pll .big{
+  width:162px;height:162px;border-radius:14px;flex:none;align-self:center;
+  background:linear-gradient(135deg,#3d4457,#1d222d);
+  position:relative;overflow:hidden;box-shadow:0 14px 34px -10px rgba(0,0,0,.6);
+}
+.pll .big::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(229,72,77,.62),transparent 66%)}
+.pll .big::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 82%,rgba(232,147,12,.35),transparent 60%)}
+.pll .meta{flex:none;padding:14px 0 0;text-align:center}
+.pll .meta h3{font-size:19px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pll .meta p{font-size:12.5px;color:var(--app-ink-2);margin-top:3px}
+.pll .prog{flex:none;padding:14px 0 0}
+.pll .bar{height:4px;background:var(--app-surface-2);border-radius:3px;overflow:hidden}
+.pll .bar i{display:block;height:100%;width:38%;background:var(--brand);border-radius:3px}
+.pll .times{display:flex;justify-content:space-between;font-size:10.5px;color:var(--app-ink-3);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.pll .ctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:19px;padding:14px 0 0}
+.pll .ctrl svg{width:20px;height:20px;color:var(--app-ink-2)}
+.pll .ctrl .pp{
+  width:54px;height:54px;border-radius:50%;background:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.pll .ctrl .pp svg{width:23px;height:23px;color:#fff}
+.pll .ctrl .sm svg{width:17px;height:17px}
+.pll .row2{flex:none;display:flex;align-items:center;justify-content:space-around;padding:10px 0 0;border-top:1px solid var(--app-line);margin-top:10px}
+.pll .row2 div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--app-ink-3)}
+.pll .row2 svg{width:18px;height:18px;color:var(--app-ink-2)}
+.pll .row2 .on svg{color:var(--brand)}
+
+/* lyrics */
+.lyr{flex:1;min-height:0;overflow:hidden;padding:8px 0 4px;text-align:center;mask-image:linear-gradient(180deg,transparent,#000 20%,#000 76%,transparent)}
+.lyr div{font-size:14px;line-height:1.85;color:var(--app-ink-3);font-weight:500}
+.lyr div.on{color:var(--app-ink);font-size:16px;font-weight:700}
+.lyr div.on2{color:var(--brand);font-size:15px;font-weight:600}
+
+/* cards grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.plcard{background:var(--app-surface);border:1px solid var(--app-line);border-radius:13px;overflow:hidden}
+.plcard .cv{
+  aspect-ratio:1;border-radius:0;display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:rgba(255,255,255,.8);
+}
+.plcard .in{padding:8px 10px 10px}
+.plcard .in b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plcard .in span{font-size:10.5px;color:var(--app-ink-3)}
+
+/* progress card */
+.dcard{background:var(--app-surface);border:1px solid var(--app-line);border-radius:13px;padding:11px;margin-bottom:9px}
+.dcard .t1{display:flex;align-items:center;gap:9px}
+.dcard .t1 .cov{width:38px;height:38px}
+.dcard .t1 .info{flex:1;min-width:0}
+.dcard .t1 .t{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcard .t1 .s{font-size:10.5px;color:var(--app-ink-3);margin-top:1px;font-family:'JetBrains Mono',monospace}
+.dcard .pbar{height:4px;background:var(--app-surface-2);border-radius:3px;margin-top:9px;overflow:hidden}
+.dcard .pbar i{display:block;height:100%;background:var(--brand);border-radius:3px}
+.dcard .pbar.done i{background:var(--green)}
+.dcard .pbar.err i{background:#8b5cf6}
+.dcard .st{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:10.5px;color:var(--app-ink-3);font-family:'JetBrains Mono',monospace}
+
+/* list row (settings) */
+.lrow{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--app-line)}
+.lrow:last-child{border-bottom:none}
+.lrow .ic{width:29px;height:29px;border-radius:9px;background:var(--app-surface-2);display:flex;align-items:center;justify-content:center;flex:none}
+.lrow .ic svg{width:15px;height:15px;color:var(--app-ink-2)}
+.lrow .info{flex:1;min-width:0}
+.lrow .info b{display:block;font-size:12.5px;font-weight:500}
+.lrow .info span{font-size:10.5px;color:var(--app-ink-3);display:block;margin-top:1px}
+.lrow .val{font-size:11.5px;color:var(--app-ink-3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw-t{width:38px;height:22px;border-radius:12px;background:var(--app-surface-2);border:1px solid var(--app-line);position:relative;flex:none}
+.sw-t.on{background:var(--brand);border-color:var(--brand)}
+.sw-t i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.18s}
+.sw-t.on i{left:18px}
+
+/* notice */
+.notice{
+  background:rgba(22,26,35,.96);border:1px solid var(--app-line);border-radius:15px;
+  padding:12px 14px;display:flex;gap:11px;align-items:center;
+  box-shadow:0 12px 30px -8px rgba(0,0,0,.55);
+}
+.notice .ic{width:34px;height:34px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+.notice .ic svg{width:17px;height:17px;color:#fff}
+.notice .info{flex:1;min-width:0}
+.notice .info b{display:block;font-size:12.5px;font-weight:600}
+.notice .info span{font-size:10.5px;color:var(--app-ink-3);display:block;margin-top:2px}
+.notice .pbar{height:3px;background:var(--app-surface-2);border-radius:2px;margin-top:6px;overflow:hidden}
+.notice .pbar i{display:block;height:100%;width:62%;background:var(--brand)}
+
+/* tabs inside app */
+.atabs{display:flex;gap:18px;padding:0 14px;border-bottom:1px solid var(--app-line);flex:none}
+.atabs div{font-size:13px;color:var(--app-ink-3);padding:8px 0 9px;position:relative;font-weight:500}
+.atabs div.on{color:var(--app-ink);font-weight:700}
+.atabs div.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--brand);border-radius:2px}
+.atabs .n{font-size:10.5px;color:var(--app-ink-3);margin-left:4px;font-family:'JetBrains Mono',monospace}
+
+/* multi-select bar */
+.msbar{
+  margin:0 10px 8px;background:rgba(229,72,77,.14);border:1px solid rgba(229,72,77,.4);
+  border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:10px;flex:none;
+}
+.msbar b{font-size:12.5px;color:#ff8b8f;font-weight:600}
+.msbar .sp{flex:1}
+.msbar .act{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#ff8b8f}
+.msbar .act svg{width:14px;height:14px}
+
+.check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--app-ink-3);flex:none;display:flex;align-items:center;justify-content:center}
+.check.on{background:var(--brand);border-color:var(--brand)}
+.check svg{width:11px;height:11px;color:#fff}
+
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:0 30px;text-align:center}
+.empty .ic{width:52px;height:52px;border-radius:16px;background:var(--app-surface);display:flex;align-items:center;justify-content:center}
+.empty .ic svg{width:23px;height:23px;color:var(--app-ink-3)}
+.empty b{font-size:13.5px;font-weight:600}
+.empty p{font-size:11.5px;color:var(--app-ink-3);line-height:1.55}
+
+.fab{
+  position:absolute;right:16px;bottom:132px;width:46px;height:46px;border-radius:16px;
+  background:var(--brand);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 20px -4px rgba(229,72,77,.55);
+}
+.fab svg{width:21px;height:21px;color:#fff}
+
+/* ---------- IA diagram ---------- */
+.iamap{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:26px}
+.iarow{display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:start;margin-bottom:16px}
+.iarow:last-child{margin-bottom:0}
+.iatier{font-size:12.5px;font-weight:600;color:var(--ink-2);padding-top:9px;text-align:right}
+.iaflow{display:flex;gap:9px;flex-wrap:wrap}
+.ianode{
+  background:var(--line-soft);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;font-size:12.5px;display:flex;align-items:center;gap:7px;
+}
+.ianode svg{width:14px;height:14px;color:var(--brand);flex:none}
+.ianode.mid{background:var(--brand-soft);border-color:rgba(229,72,77,.28);font-weight:600}
+.iaarrow{align-self:center;color:var(--ink-3);font-size:11px;font-family:'JetBrains Mono',monospace}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:13px}
+th{background:#fafbfc;text-align:left;padding:11px 14px;font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--line-soft);padding:2px 6px;border-radius:4px;color:var(--ink-2)}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
+.pill.g{background:rgba(18,161,80,.13);color:var(--green)}
+.pill.a{background:rgba(232,147,12,.15);color:var(--amber)}
+.pill.r{background:rgba(229,72,77,.12);color:var(--brand)}
+.pill.n{background:var(--line-soft);color:var(--ink-3)}
+
+.notes{display:flex;flex-direction:column;gap:11px}
+.note-row{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;
+  transition:.2s;
+}
+.note-row:hover{border-color:rgba(229,72,77,.35);box-shadow:0 3px 12px -3px rgba(20,22,28,.08)}
+.note-row .n{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;flex:none;
+  color:#fff;background:var(--brand);width:22px;height:22px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.note-row b{font-size:13px;font-weight:600;display:block;margin-bottom:3px}
+.note-row p{font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+@media (max-width:768px){
+  .wrap{padding:28px 16px 60px}
+  .hd h1{font-size:27px}
+  .phones{grid-template-columns:1fr}
+  .phone{width:100%;max-width:320px}
+  .iarow{grid-template-columns:1fr;gap:6px}
+  .iatier{text-align:left;padding-top:0}
+  .iaarrow{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ HEADER ============ -->
+<header class="hd">
+  <div class="kicker">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    ANDROID APP · UI 设计稿 v1.0
+  </div>
+  <h1>CoCo Music — 音乐搜索与下载客户端</h1>
+  <p>面向 <code style="font-family:'JetBrains Mono',monospace;font-size:13px">m.resound.vip</code> 的原生 Android 客户端设计稿。5 个功能模块、4 个底部导航 + 全屏播放页、深色主题优先。本稿为开发前的视觉与交互定稿依据。</p>
+  <div class="meta">
+    <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>Kotlin + Compose</span>
+    <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Material 3</span>
+    <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>minSdk 24 / target 34</span>
+    <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/></svg>深色优先 · 浅色跟随系统</span>
+    <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Media3 · Room · WorkManager</span>
+  </div>
+</header>
+
+<!-- ============ 1. 设计总则 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">01</span><h2>视觉系统</h2></div>
+  <p class="sec-sub">深色为主基调（音乐场景沉浸感），单一强调色 <code style="font-family:'JetBrains Mono',monospace;font-size:12.5px">#E5484D</code> 只用于「正在发生的事」——当前播放、下载中、已选中。琥珀色仅作语义辅助（音质档位 / 警告），不承担品牌表达。</p>
+
+  <div class="tokgrid">
+    <div class="tok">
+      <h4>强调色</h4>
+      <div class="swrow"><div class="dot" style="background:#e5484d"></div>Primary / 品牌红<code>#E5484D</code></div>
+      <div class="swrow"><div class="dot" style="background:#e8930c"></div>Quality / 音质琥珀<code>#E8930C</code></div>
+      <div class="swrow"><div class="dot" style="background:#12a150"></div>Success / 完成绿<code>#12A150</code></div>
+      <p class="note">强调色使用面积控制在 5–10%，仅用于图标、进度条、选中态与 FAB。</p>
+    </div>
+    <div class="tok">
+      <h4>深色表面层级</h4>
+      <div class="swrow"><div class="dot" style="background:#0c0e14"></div>Background<code>#0C0E14</code></div>
+      <div class="swrow"><div class="dot" style="background:#161a23"></div>Surface 卡片<code>#161A23</code></div>
+      <div class="swrow"><div class="dot" style="background:#1e232e"></div>Surface 2 控件<code>#1E232E</code></div>
+      <div class="swrow"><div class="dot" style="background:#2a303d"></div>Outline 分隔<code>#2A303D</code></div>
+      <p class="note">四层表面递进代替阴影分层，是深色 UI 的关键——纯黑背景 + 阴影会显脏。</p>
+    </div>
+    <div class="tok">
+      <h4>文字层级</h4>
+      <div class="swrow"><div class="dot" style="background:#f2f4f8"></div>Primary 标题<code>#F2F4F8</code></div>
+      <div class="swrow"><div class="dot" style="background:#a8b0c0"></div>Secondary 副文<code>#A8B0C0</code></div>
+      <div class="swrow"><div class="dot" style="background:#6b7488"></div>Tertiary 辅助<code>#6B7488</code></div>
+      <p class="note">时长、码率等数字统一用等宽字体（JetBrains Mono / Roboto Mono），便于纵向对齐扫描。</p>
+    </div>
+    <div class="tok">
+      <h4>排版比例</h4>
+      <div class="typelist">
+        <div class="typerow"><span class="lbl">H1 页面标题</span><span style="font-size:18px;font-weight:700">18 / 700</span></div>
+        <div class="typerow"><span class="lbl">H2 区块标题</span><span style="font-size:15px;font-weight:600">15 / 600</span></div>
+        <div class="typerow"><span class="lbl">列表主标题</span><span style="font-size:13px;font-weight:500">13 / 500</span></div>
+        <div class="typerow"><span class="lbl">列表副标题</span><span style="font-size:11px;color:var(--ink-3)">11 / 400</span></div>
+        <div class="typerow"><span class="lbl">Badge 标签</span><span style="font-size:9.5px;font-weight:700">9.5 / 700</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. 信息架构 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">02</span><h2>信息架构与导航</h2></div>
+  <p class="sec-sub">底部 4 个导航 + 全屏播放页 + 两级二级页。播放页不进底栏，而是由常驻 Mini Player 唤起——避免底部出现 5 个图标后把「播放」这个高频动作稀释掉。</p>
+  <div class="iamap">
+    <div class="iarow">
+      <div class="iatier">底部导航</div>
+      <div class="iaflow">
+        <span class="ianode mid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>搜索</span>
+        <span class="ianode mid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>收藏</span>
+        <span class="ianode mid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>下载</span>
+        <span class="ianode mid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>设置</span>
+      </div>
+    </div>
+    <div class="iarow">
+      <div class="iatier">常驻层</div>
+      <div class="iaflow">
+        <span class="ianode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Mini Player（全部页面常驻）</span>
+        <span class="iaarrow">→</span>
+        <span class="ianode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>下载进度通知</span>
+      </div>
+    </div>
+    <div class="iarow">
+      <div class="iatier">二级页</div>
+      <div class="iaflow">
+        <span class="ianode">歌单详情</span>
+        <span class="ianode">播放队列</span>
+        <span class="ianode">音质选择</span>
+        <span class="ianode">渠道体检</span>
+        <span class="ianode">标签管理</span>
+        <span class="ianode">已下载歌曲</span>
+        <span class="ianode">新建歌单</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. 核心页面 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">03</span><h2>核心页面</h2></div>
+  <p class="sec-sub">下面 6 屏是全部主界面。所有交互状态（加载 / 空 / 错误 / 多选 / 断点续传）都有对应设计，不留临场发挥空间。</p>
+
+  <div class="phones">
+
+    <!-- ========== 搜索页 ========== -->
+    <div class="pcol">
+      <div class="plabel">① 搜索页</div>
+      <div class="pdesc">多渠道并发聚合。渠道 chip 上的绿点＝该渠道搜索+取流实测可用；结果行右侧三枚图标＝播放 / 收藏 / 下载。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab"><div class="ttl">搜索</div><div class="sp"></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        </div>
+        <div class="sf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>晴天</span><div class="sp"></div>
+          <div class="clr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+        </div>
+        <div class="chips">
+          <span class="pchip on">全部</span>
+          <span class="pchip"><i class="hdot h-ok"></i>云音乐</span>
+          <span class="pchip"><i class="hdot h-ok"></i>米兔</span>
+          <span class="pchip"><i class="hdot h-ok"></i>波点</span>
+          <span class="pchip"><i class="hdot h-mid"></i>咪咕</span>
+        </div>
+        <div class="seg"><div class="on">按渠道分组</div><div>合并去重</div></div>
+        <div class="lst">
+          <div class="sect-t">云音乐<span class="ln"></span><span style="font-family:'JetBrains Mono',monospace;font-weight:400;text-transform:none;letter-spacing:0">1 条</span></div>
+          <div class="trk">
+            <div class="cov">晴</div>
+            <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal<span class="qb hi">FLAC</span><span class="dur">05:39</span></div></div>
+            <div class="rt">
+              <div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            </div>
+          </div>
+          <div class="sect-t">米兔<span class="ln"></span><span style="font-family:'JetBrains Mono',monospace;font-weight:400;text-transform:none;letter-spacing:0">2 条</span></div>
+          <div class="trk">
+            <div class="cov t2">晴</div>
+            <div class="info"><div class="t">晴天</div><div class="s">周杰伦<span class="qb lo">MP3</span><span class="dur">05:19</span></div></div>
+            <div class="rt">
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            </div>
+          </div>
+          <div class="trk">
+            <div class="cov t2">晴</div>
+            <div class="info"><div class="t">晴天 (Live版)</div><div class="s">周杰伦<span class="qb lo">MP3</span><span class="dur">05:19</span></div></div>
+            <div class="rt">
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            </div>
+          </div>
+          <div class="sect-t">波点<span class="ln"></span><span style="font-family:'JetBrains Mono',monospace;font-weight:400;text-transform:none;letter-spacing:0">3 条</span></div>
+          <div class="trk">
+            <div class="cov t3">晴</div>
+            <div class="info"><div class="t">晴天</div><div class="s">周杰伦<span class="qb hi">FLAC</span><span class="dur">05:19</span></div></div>
+            <div class="rt">
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+              <div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="cov"></div>
+          <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal · 云音乐</div></div>
+          <div class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9z" fill="currentColor" stroke="none"/></svg></div>
+        </div>
+        <div class="nav">
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ========== 播放页 ========== -->
+    <div class="pcol">
+      <div class="plabel">② 播放页</div>
+      <div class="pdesc">封面取自 API 封面图，配色用封面主色做渐变。歌词可滚动并与进度毫秒级对齐，点击封面进入全屏歌词模式；底部四枚快捷键：收藏 / 下载 / 队列 / 音质。整页可纵向滚动。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab" style="padding-top:4px">
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></div>
+          <div class="sp" style="text-align:center;font-size:12.5px;font-weight:600">正在播放</div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+        </div>
+        <div class="pll">
+          <div class="big"></div>
+          <div class="meta">
+            <h3>晴天 (原唱 周杰伦)</h3>
+            <p>RyaVocal · 晴天 (原唱 周杰伦) · 云音乐</p>
+          </div>
+          <div class="prog">
+            <div class="bar"><i></i></div>
+            <div class="times"><span>01:52</span><span>05:39</span></div>
+          </div>
+          <div class="ctrl">
+            <span class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></span>
+            <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM9.5 12l8.5 6V6z"/></svg></span>
+            <span class="pp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM6 6l9 6-9 6z"/></svg></span>
+            <span class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>
+          </div>
+          <div class="row2">
+            <div class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>收藏</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>下载</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>队列</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>音质</div>
+          </div>
+          <div class="lyr">
+            <div>故事的小黄花</div>
+            <div>从出生那年就飘着</div>
+            <div class="on">童年的荡秋千</div>
+            <div class="on2">随记忆一直晃到现在</div>
+            <div>从前从前有个人爱你很久</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ========== 收藏夹 ========== -->
+    <div class="pcol">
+      <div class="plabel">③ 收藏夹</div>
+      <div class="pdesc">自建歌单 + 标签双视图。歌单卡片用前 4 首封面拼贴；右下 FAB 新建。标签页用彩色圆点区分。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab"><div class="ttl">收藏</div><div class="sp"></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></div>
+        </div>
+        <div class="atabs"><div class="on">我的歌单<span class="n">6</span></div><div>全部歌曲<span class="n">128</span></div><div>标签<span class="n">9</span></div></div>
+        <div class="lst" style="padding-top:12px">
+          <div class="grid2">
+            <div class="plcard">
+              <div class="cv" style="background:linear-gradient(135deg,#3d4457,#1d222d)">千</div>
+              <div class="in"><b>千本樱</b><span>24 首 · 1.2 GB</span></div>
+            </div>
+            <div class="plcard">
+              <div class="cv t2" style="background:linear-gradient(135deg,#4a3f2f,#241f19)">周</div>
+              <div class="in"><b>周杰伦全收录</b><span>68 首 · 3.4 GB</span></div>
+            </div>
+            <div class="plcard">
+              <div class="cv t3" style="background:linear-gradient(135deg,#2f4638,#16221c)">夜</div>
+              <div class="in"><b>深夜循环</b><span>18 首 · 890 MB</span></div>
+            </div>
+            <div class="plcard">
+              <div class="cv" style="background:linear-gradient(135deg,#4a3540,#241a1f)">白</div>
+              <div class="in"><b>白日梦</b><span>9 首 · 410 MB</span></div>
+            </div>
+          </div>
+          <div class="sect-t">最近添加<span class="ln"></span></div>
+          <div class="trk">
+            <div class="cov"></div>
+            <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal<span class="prov">云音乐</span><span class="qb hi">FLAC</span><span class="dur">2 分钟前</span></div></div>
+            <div class="rt"><div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="cov t3"></div>
+            <div class="info"><div class="t">七里香</div><div class="s">周杰伦<span class="prov">米兔</span><span class="qb lo">MP3</span><span class="dur">昨天</span></div></div>
+            <div class="rt"><div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="cov t2"></div>
+            <div class="info"><div class="t">起风了</div><div class="s">买辣椒也用券<span class="prov">波点</span><span class="qb hi">FLAC</span><span class="dur">3 天前</span></div></div>
+            <div class="rt"><div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+        </div>
+        <div class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="mini">
+          <div class="cov"></div>
+          <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal · 云音乐</div></div>
+          <div class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9z" fill="currentColor" stroke="none"/></svg></div>
+        </div>
+        <div class="nav">
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ========== 歌单详情 ========== -->
+    <div class="pcol">
+      <div class="plabel">④ 歌单详情</div>
+      <div class="pdesc">多选模式下底部浮出批量操作条：全选 / 下载全部 / 加入其他歌单 / 排序。标题右侧为「一键下载整个歌单」。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab">
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></div>
+          <div class="sp"></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+        </div>
+        <div class="lst" style="padding-top:8px">
+          <div style="display:flex;gap:13px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--app-line);margin-bottom:6px">
+            <div class="cov" style="width:66px;height:66px;border-radius:13px;background:linear-gradient(135deg,#3d4457,#1d222d)">千</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:700;letter-spacing:-.01em">千本樱</div>
+              <div style="font-size:11px;color:var(--app-ink-3);margin-top:3px">24 首 · 1.2 GB · 创建于 11 月 2 日</div>
+              <div style="display:flex;gap:5px;margin-top:6px">
+                <span style="font-size:9.5px;padding:2px 7px;border-radius:999px;background:rgba(229,72,77,.15);color:#f0737a;font-weight:600">华语</span>
+                <span style="font-size:9.5px;padding:2px 7px;border-radius:999px;background:rgba(232,147,12,.15);color:#f0a93a;font-weight:600">无损</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;padding:11px 0 9px">
+            <span style="font-size:11.5px;padding:6px 11px;border-radius:9px;background:var(--brand);color:#fff;font-weight:600;display:inline-flex;align-items:center;gap:5px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>下载全部</span>
+            <span style="font-size:11.5px;padding:6px 11px;border-radius:9px;background:var(--app-surface-2);color:var(--app-ink-2);font-weight:500">播放全部</span>
+            <span style="font-size:11.5px;padding:6px 11px;border-radius:9px;background:var(--app-surface-2);color:var(--app-ink-2);font-weight:500">排序</span>
+          </div>
+          <div class="trk">
+            <div class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="cov"></div>
+            <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal<span class="prov">云音乐</span><span class="qb hi">FLAC</span></div></div>
+            <div class="rt"><div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="cov t3"></div>
+            <div class="info"><div class="t">七里香</div><div class="s">周杰伦<span class="prov">米兔</span><span class="qb lo">MP3</span></div></div>
+            <div class="rt"><div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="cov t2"></div>
+            <div class="info"><div class="t">起风了</div><div class="s">买辣椒也用券<span class="prov">波点</span><span class="qb hi">FLAC</span></div></div>
+            <div class="rt"><div class="ia on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="check"></div>
+            <div class="cov"></div>
+            <div class="info"><div class="t">告白气球</div><div class="s">周杰伦<span class="prov">云音乐</span><span class="qb hi">FLAC</span></div></div>
+            <div class="rt"><div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+          <div class="trk">
+            <div class="check"></div>
+            <div class="cov t3"></div>
+            <div class="info"><div class="t">稻香</div><div class="s">周杰伦<span class="prov">米兔</span><span class="qb lo">MP3</span></div></div>
+            <div class="rt"><div class="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div></div>
+          </div>
+        </div>
+        <div class="msbar">
+          <b>已选 3 首</b><div class="sp"></div>
+          <span class="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>下载</span>
+          <span class="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>加入歌单</span>
+        </div>
+        <div class="nav">
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ========== 下载中心 ========== -->
+    <div class="pcol">
+      <div class="plabel">⑤ 下载中心</div>
+      <div class="pdesc">三个标签页：下载中 / 已完成 / 失败。进度条与速度实时刷新；失败项直接显示原因和「重试」。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab"><div class="ttl">下载</div><div class="sp"></div>
+          <div class="abbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg></div>
+        </div>
+        <div class="atabs"><div class="on">下载中<span class="n">2</span></div><div>已完成<span class="n">18</span></div><div>失败<span class="n">1</span></div></div>
+        <div class="lst" style="padding-top:11px">
+          <div class="dcard">
+            <div class="t1">
+              <div class="cov"></div>
+              <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">FLAC · 42.1 / 51.2 MB</div></div>
+              <span class="qb hi">FLAC</span>
+            </div>
+            <div class="pbar"><i style="width:82%"></i></div>
+            <div class="st"><span>82% · 6.2 MB/s</span><span>00:08 剩余</span></div>
+          </div>
+          <div class="dcard">
+            <div class="t1">
+              <div class="cov t3"></div>
+              <div class="info"><div class="t">七里香</div><div class="s">MP3 · 1.4 / 8.0 MB</div></div>
+              <span class="qb lo">MP3</span>
+            </div>
+            <div class="pbar"><i style="width:17%"></i></div>
+            <div class="st"><span>17% · 128 KB/s</span><span>排队中</span></div>
+          </div>
+          <div class="sect-t">已完成（最近）<span class="ln"></span></div>
+          <div class="dcard">
+            <div class="t1">
+              <div class="cov t2"></div>
+              <div class="info"><div class="t">起风了</div><div class="s">FLAC · 38.6 MB · 昨天 21:04</div></div>
+              <span class="qb hi">FLAC</span>
+            </div>
+            <div class="pbar done"><i style="width:100%"></i></div>
+            <div class="st"><span style="color:var(--green)">已完成</span><span>Music/CocoMusic/</span></div>
+          </div>
+          <div class="dcard">
+            <div class="t1">
+              <div class="cov"></div>
+              <div class="info"><div class="t">稻香</div><div class="s">FLAC · 45.2 MB · 昨天 20:51</div></div>
+              <span class="qb hi">FLAC</span>
+            </div>
+            <div class="pbar done"><i style="width:100%"></i></div>
+            <div class="st"><span style="color:var(--green)">已完成</span><span>Music/CocoMusic/</span></div>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="cov"></div>
+          <div class="info"><div class="t">晴天 (原唱 周杰伦)</div><div class="s">RyaVocal · 云音乐</div></div>
+          <div class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9z" fill="currentColor" stroke="none"/></svg></div>
+        </div>
+        <div class="nav">
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ========== 设置 + 通知 ========== -->
+    <div class="pcol">
+      <div class="plabel">⑥ 设置 &amp; 通知</div>
+      <div class="pdesc">设置分组：音源 / 下载 / 播放 / 数据。右侧为下载进度通知（前台服务 + Media3 通知的标准形态）。</div>
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div class="ab"><div class="ttl">设置</div><div class="sp"></div></div>
+        <div class="lst" style="padding-top:6px">
+          <div class="sect-t">音源<span class="ln"></span></div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg></div>
+            <div class="info"><b>服务器地址</b><span>可切换自建音源站</span></div>
+            <div class="val">m.resound.vip</div>
+          </div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <div class="info"><b>渠道体检</b><span>检测各渠道搜索与取流状态</span></div>
+            <span class="pill g">5 可用</span>
+          </div>
+          <div class="sect-t">下载<span class="ln"></span></div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            <div class="info"><b>保存位置</b><span>Android 10+ 自动进媒体库</span></div>
+            <div class="val">Music/CocoMusic</div>
+          </div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+            <div class="info"><b>仅 WiFi 下载</b><span>移动网络下暂停队列</span></div>
+            <div class="sw-t on"><i></i></div>
+          </div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg></div>
+            <div class="info"><b>默认音质</b><span>下载与播放的默认档位</span></div>
+            <div class="val">无损 lossless</div>
+          </div>
+          <div class="sect-t">数据<span class="ln"></span></div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            <div class="info"><b>导出收藏夹</b><span>备份为 JSON 文件</span></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" style="color:var(--app-ink-3)"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="lrow">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></div>
+            <div class="info"><b>清空缓存</b><span>歌词与封面缓存</span></div>
+            <div class="val">28.4 MB</div>
+          </div>
+        </div>
+        <div class="nav" style="margin-top:auto">
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>搜索</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>收藏</span></div>
+          <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span>下载</span></div>
+          <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>设置</span></div>
+        </div>
+      </div></div>
+
+    <div class="pcol">
+      <div class="plabel">⑦ 下载进度通知</div>
+      <div class="pdesc">后台下载时前台服务通知，展示歌名、进度条与速度；点击回到下载中心。</div>
+      <div class="phone" style="height:400px"><div class="scr" style="padding:14px">
+        <div class="sbar"><span>22:38</span><span class="icons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v4"/></svg>
+        </span></div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px">
+          <div style="font-size:11px;color:var(--app-ink-3);letter-spacing:.05em;text-transform:uppercase">通知栏</div>
+          <div class="notice">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+            <div class="info">
+              <b>正在下载 · 晴天 (原唱 周杰伦)</b>
+              <span>82% · 6.2 MB/s · 剩余 00:08</span>
+              <div class="pbar"><i></i></div>
+            </div>
+          </div>
+          <div class="notice">
+            <div class="ic" style="background:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="info"><b>下载完成 · 起风了</b><span>FLAC 38.6 MB · 已保存到 Music/CocoMusic</span></div>
+          </div>
+          <div class="notice">
+            <div class="ic" style="background:var(--app-surface-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div class="info"><b>晴天 (原唱 周杰伦)</b><span>RyaVocal · 云音乐 · 正在播放</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 4. 状态清单 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">04</span><h2>交互状态清单</h2></div>
+  <p class="sec-sub">每个页面必须实现的全部状态。留白即 bug——开发时不留"到时候再定"的空位。</p>
+  <table>
+    <thead><tr><th style="width:110px">页面</th><th style="width:150px">状态</th><th>呈现方式</th></tr></thead>
+    <tbody>
+      <tr><td>搜索</td><td>首次进入</td><td>空态 + 热门歌手快捷入口（周杰伦 / 孙燕姿 / 林俊杰 / 陈奕迅）+ 「已选渠道健康速览」卡片</td></tr>
+      <tr><td>搜索</td><td>加载中</td><td>每渠道独立骨架屏，不做整页转圈——快的渠道先出结果，慢的渠道后补</td></tr>
+      <tr><td>搜索</td><td>渠道无结果</td><td>渠道分组下显示「该渠道无结果」灰字，不隐藏分组（用户要看到渠道确实响应了）</td></tr>
+      <tr><td>搜索</td><td>渠道回落到 netease</td><td>渠道名后加黄色 ⚠ 徽标「已回落」，点击说明原因</td></tr>
+      <tr><td>搜索</td><td>全部渠道失败</td><td>空态 + 「重试」按钮 + 展示各渠道具体错误（500 / 超时 / 空）</td></tr>
+      <tr><td>搜索</td><td>网络断开</td><td>顶部横幅「网络不可用」，保留上次结果不清空</td></tr>
+      <tr><td>播放</td><td>取流失败</td><td>保留封面与歌名，居中显示「解析失败，换渠道试试」+ 渠道切换按钮</td></tr>
+      <tr><td>播放</td><td>歌词缺失</td><td>歌词区显示「暂无歌词」，不空白</td></tr>
+      <tr><td>收藏夹</td><td>无歌单</td><td>空态插画 + 「新建歌单」CTA</td></tr>
+      <tr><td>歌单详情</td><td>空歌单</td><td>空态 + 「去搜索添加」</td></tr>
+      <tr><td>下载</td><td>队列空</td><td>空态 + 「去搜索」</td></tr>
+      <tr><td>下载</td><td>下载中</td><td>进度条 + 实时速度 + 剩余时间；可暂停/取消</td></tr>
+      <tr><td>下载</td><td>直链 403 过期</td><td>自动重取直链并 Range 续传，UI 显示「链接已过期，正在恢复」</td></tr>
+      <tr><td>下载</td><td>失败</td><td>红色进度条 + 原因（取流失败 / 直链失效 / 存储空间不足 / 仅 WiFi）+ 重试 / 换渠道</td></tr>
+      <tr><td>下载</td><td>存储空间不足</td><td>下载前预检可用空间，不足时提前拦截并提示</td></tr>
+      <tr><td>全局</td><td>下载中切后台</td><td>前台服务保持下载，通知栏可暂停/取消</td></tr>
+      <tr><td>全局</td><td>未授予通知权限</td><td>首次下载前引导授权（Android 13+ 运行时权限）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 5. 关键设计决策 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">05</span><h2>关键设计决策</h2></div>
+  <p class="sec-sub">以下 6 条是这份设计稿与常见做法不同的地方，都是为真实 API 约束做的适配。</p>
+  <div class="notes">
+    <div class="note-row">
+      <span class="n">01</span>
+      <div><b>渠道 chip 带健康指示点</b><p>线上 17 个渠道实测只有 5 个当前可用，且随时可能变化。健康点直接来自「渠道体检」缓存，让用户在搜索前就知道哪些渠道能用，而不是搜完发现全是空。</p></div>
+    </div>
+    <div class="note-row">
+      <span class="n">02</span>
+      <div><b>每条结果都显示来源渠道徽标</b><p>同一首歌在不同渠道的音质、时长、版本都不同（实测云音乐给 FLAC、米兔给 MP3）。徽标让用户知道自己在比什么，避免「收藏了 3 个版本」这种重复收藏。</p></div>
+    </div>
+    <div class="note-row">
+      <span class="n">03</span>
+      <div><b>音质徽标只显示真实格式与位率</b><p>线上 netease 的 hires / sky / jymaster 四档实测全部返回同一个 2000k FLAC。徽标按实测值显示（如 FLAC 2000k），不标「超清母带」误导用户。</p></div>
+    </div>
+    <div class="note-row">
+      <span class="n">04</span>
+      <div><b>「已回落」徽标必须显式提示</b><p>线上对未知渠道会静默回落到 netease。若 APP 不做比对，用户搜 QQ 音乐却拿到网易结果且毫无察觉。所以每个渠道分组都校验返回项的 provider 字段，不一致就打黄色徽标。</p></div>
+    </div>
+    <div class="note-row">
+      <span class="n">05</span>
+      <div><b>底栏 4 项而非 5 项</b><p>播放不是「一个页面」，而是一个持续状态。把它做成底栏第 5 项会诱导用户期待每次都从这里进入。改为 Mini Player 常驻 + 点击唤起全屏页，符合 Android 音乐类应用惯例。</p></div>
+    </div>
+    <div class="note-row">
+      <span class="n">06</span>
+      <div><b>歌单卡片用前 4 首封面拼贴</b><p>自建收藏夹的可辨识度主要来自封面。但下载后才有本地封面，未下载时用 API 封面色块占位，保证视觉一致不塌陷。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. 开发映射 ============ -->
+<section class="sec">
+  <div class="sec-h"><span class="n">06</span><h2>开发落地映射</h2></div>
+  <p class="sec-sub">设计稿每个元素对应的 Compose 实现，确认后我直接照此写代码，不做二次设计。</p>
+  <table>
+    <thead><tr><th style="width:170px">设计元素</th><th style="width:210px">Compose 实现</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>四层深色表面</td><td><code>ColorScheme.surface / surfaceContainer / surfaceContainerHigh</code></td><td>Material 3 的 surface 层级直接映射，不自造</td></tr>
+      <tr><td>强调红</td><td><code>colorScheme.primary</code></td><td>只在 FAB、进度条、选中态、当前播放使用</td></tr>
+      <tr><td>底部导航</td><td><code>NavigationBar</code> + <code>NavigationBarItem</code></td><td>4 项，图标用 Material Icons Outlined</td></tr>
+      <tr><td>Mini Player</td><td><code>Scaffold.bottomBar</code> 内嵌 <code>Surface</code></td><td>常驻，滚动时收起为小条</td></tr>
+      <tr><td>封面圆角 8–13px</td><td><code>RoundedCornerShape(8.dp)</code> / <code>13.dp</code></td><td>列表用小圆角，歌单卡片用大圆角</td></tr>
+      <tr><td>圆形头像占位</td><td><code>AsyncImage</code> + <code>ColorBrush</code> 渐变兜底</td><td>Coil 加载，加载中显示封面主色渐变</td></tr>
+      <tr><td>下载进度条</td><td><code>LinearProgressIndicator(progress = {float})</code></td><td>状态驱动：下载中红、完成绿、失败紫</td></tr>
+      <tr><td>滚动歌词</td><td><code>LazyColumn</code> + <code>animateScrollToItem</code></td><td>当前行放大加粗，上一行次级色</td></tr>
+      <tr><td>通知</td><td><code>ForegroundService</code> + <code>NotificationCompat</code></td><td>下载与播放各一条，均可跳转</td></tr>
+      <tr><td>开关</td><td><code>Switch</code></td><td>设置页开关统一走 Material 3 组件</td></tr>
+      <tr><td>字体</td><td><code>FontFamily.Default</code> + 等宽数字</td><td>时长/码率用 monospace 对齐</td></tr>
+      <tr><td>深浅色</td><td><code>isSystemInDarkTheme()</code></td><td>默认跟随系统，设置页可锁定深色</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Gradle / 构建产物
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+.kotlin/
+captures/
+local.properties
+
+# 签名密钥库：绝不能进版本库
+# 需要自己生成一把（口令与 alias 见 README「构建与签名」小节）：
+#   keytool -genkeypair -v -keystore app/mu-release.jks -alias mu \
+#           -keyalg RSA -keysize 2048 -validity 10950 \
+#           -storepass <你的口令> -keypass <你的口令>
+*.jks
+*.keystore
+
+# 系统文件
+.DS_Store
+Thumbs.db
