@@ -1,5 +1,6 @@
 package com.r3zound.music.feature.favorites
 
+import com.r3zound.music.ui.nav.rememberSearchNavState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -334,6 +335,7 @@ fun PlaylistDetailScreen(
     LaunchedEffect(playlistId) { viewModel.attachPlaylistId(playlistId) }
 
     // 「正在播放」定位：当前播放项在歌单里的下标
+    val searchNavState = rememberSearchNavState()
     val listState = rememberLazyListState()
     val locatedIndex = remember(state.tracks, state.currentSongKey) {
         val key = state.currentSongKey
@@ -465,7 +467,8 @@ fun PlaylistDetailScreen(
                                 }
                             },
                             onArtistClick = { artist ->
-                                navController.navigate(Routes.searchWithKeyword(artist))
+                                searchNavState.request(artist)
+                                navController.navigate(Routes.HOME)
                             },
                             isPlaying = state.currentSongKey == "${song.item.provider}:${song.item.id}",
                             trailing = {

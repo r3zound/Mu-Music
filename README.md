@@ -1,59 +1,30 @@
-# Mu 音乐
+# Mu 音乐 — Android 客户端
 
-> 面向**自建音源站**的原生 Android 音乐搜索与下载客户端。
-> Kotlin 2.0 + Jetpack Compose + Material 3 + Media3 + Room + WorkManager。
+面向**自建音源站**的原生 Android 音乐搜索与下载客户端。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Android](https://img.shields.io/badge/Android-7.0%2B-green.svg)](https://developer.android.com)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-purple.svg)](https://kotlinlang.org)
+> **不内置任何服务器地址。** 首次启动请到「设置 → 服务器地址」填入你自己的音源站，
+> 否则搜索、播放、下载都无法进行。本项目开源在 <https://github.com/r3zound/Mu-Music>。
 
----
+Kotlin 2.0 + Jetpack Compose + Material 3 + Media3 + Room + WorkManager。
 
-## ⚠️ 使用前必读
-
-**本项目不内置、也不推荐任何特定的音源站。**
-首次启动请到「设置 → 服务器地址」填入**你自己有权访问的**音源站，
-否则搜索、播放、下载都无法进行（会明确提示「未设置音源站地址」）。
-
-本项目只提供客户端。服务端接口协议见 [`docs/01-需求对齐与方案.md`](docs/01-需求对齐与方案.md)。
+**底栏结构**：首页（发现 / 搜索）· 播放列表（我的歌单 / 最近播放）· 收藏（全部歌曲 / 标签）· 设置
 
 ---
 
-## 📦 下载
-
-| 文件 | 说明 |
-|---|---|
-| [`releases/MuMusic-1.4.0.apk`](releases/MuMusic-1.4.0.apk) | 直接安装的 APK（4.0 MB） |
-| [`releases/MuMusic-1.4.0-release.zip`](releases/MuMusic-1.4.0-release.zip) | APK + 插件 + 说明文档 |
-| [`releases/MuMusic-source-1.4.0.tar.gz`](releases/MuMusic-source-1.4.0.tar.gz) | 源码快照 |
-| [`releases/moresound.js`](releases/moresound.js) | MusicFree 音源插件（见下） |
-
-**安装**：下载 APK → 允许「安装未知来源应用」→ 安装。
-包名 `com.r3zound.music`，minSdk 24（Android 7.0），targetSdk 34。
-
-### 附：MusicFree 插件
-
-[`releases/moresound.js`](releases/moresound.js) 是把同音源站接进
-[MusicFree](https://github.com/maotoumao/MusicFree) 的单文件插件——
-如果你更喜欢 MusicFree 的界面，用这个更快。详见
-[`docs/07-MusicFree插件使用说明.md`](docs/07-MusicFree插件使用说明.md)。
-
----
-
-## ✨ 功能
+## 一、它能做什么
 
 | 模块 | 能力 |
 |---|---|
-| **首页** | 9 个分类入口（排行榜/歌单/华语/情歌/欧美/儿歌/经典/电音/说唱）、快捷入口、最近搜索 |
-| **搜索** | 多渠道并发聚合搜索、按渠道分组或合并去重、动态音质选择器、多选批量下载 / 批量打标签、**点歌手名直接搜该歌手** |
-| **播放** | Media3 后台播放、锁屏/通知栏控制、滚动歌词（毫秒级对齐）、播放队列、倍速与循环、**封面/歌词分页（单击封面切歌词）**、**歌词点击跳转 + 字号/偏移校正**、**睡眠定时器**、**Mini Player 滑动切歌**、**分享歌曲**、**模糊封面背景** |
+| **首页** | 两个子版块：**发现**（9 个分类入口 / 快捷入口 / 最近搜索）+ **搜索**（多渠道并发聚合、按渠道分组或合并去重、动态音质选择器、多选批量下载与打标签、**点歌手名直接搜该歌手**） |
+| **播放列表** | **我的歌单**（新建/重命名/改描述/删除）+ **最近播放**（播放历史）、**把当前播放队列存成歌单** |
+| **播放** | Media3 后台播放、锁屏/通知栏控制、滚动歌词（毫秒级对齐）、播放队列、倍速与循环、**封面/歌词分页（单击封面切歌词）**、**歌词点击跳转 + 字号/偏移校正**、**睡眠定时器**、**Mini Player 滑动切歌**、**分享歌曲** |
 | **收藏夹** | 自建歌单（无限个 + 自定义封面 + 拖拽排序）、标签体系、长按单曲加入歌单/打标签、曲目元数据完整落库、一键下载整个歌单、**内置「默认收藏」——搜索结果播放时自动入库**、**最近播放历史** |
 | **下载** | 后台队列、**直链优先 + Range 断点续传**、代理兜底、进度通知、仅 WiFi 下载、已下载管理 |
-| **设置** | 音源地址可切换、默认音质、并发数与重试次数、主题（跟随系统/浅色/深色）、**一键渠道体检**、**收藏夹 JSON 导出 / 导入** |
+| **设置** | 音源地址可切换、默认音质、并发数与重试次数、主题、**一键渠道体检**（体检结果自动勾选参与搜索的渠道）、**下载管理入口**、**收藏夹 JSON 导出 / 导入** |
 
 ---
 
-## 🔧 核心设计：下载策略
+## 二、下载策略（这是本项目的核心设计）
 
 线上实测的结论直接决定了下载模块的实现：
 
@@ -75,16 +46,36 @@
 
 - **`extra` 必须原样透传**。搜索返回的 `extra` 里带着音质档位与解析器上下文，
   取流/下载/歌词都要把它 JSON 化后原样回传，否则音质降级或取流失败。
-- **服务端会对未知渠道静默回落**。APP 收到结果后必须比对 `items[].provider`
-  与请求的 provider，不一致就在 UI 上打「已回落」徽标。
+- **服务端会对未知渠道静默回落 netease**。APP 收到结果后必须比对 `items[].provider`
+  与请求的 provider，不一致就在 UI 上打「已回落」徽标——否则用户搜 QQ 音乐
+  拿到的是网易结果却毫无察觉。
 
 ---
 
-## 🏗️ 构建
+## 三、渠道现状
 
-需要 **JDK 17 + Android SDK 34**：
+线上共 17 个渠道，实测（2026-11）真正可用的只有 5 个：
+
+| 渠道 | 名称 | 搜索 | 取流 | 续传 |
+|---|---|---|---|---|
+| `netease` | 云音乐 | ✅ | ✅ flac | ✅ |
+| `bodian` | 波点 | ✅ | ✅ flac | ✅ |
+| `qqmp3` | QQMP3 | ✅ | ✅ mp3 | ✅ |
+| `mitu` | 米兔 | ✅ | ✅ mp3 | ✅ |
+| `migu` | 咪咕 | ✅ | ✅ flac | ❌ |
+| `qq` / `kugou` / `livepoo` | XCVTS / 海棠 / 力音 | ✅ | ❌ 500 | - |
+| `gequbao` | 歌曲宝 | ⚠️ 部分 | ❌ | - |
+| `gequhai` `bugu` `mitu` `joox` `aiting` `jianbin-*` | 其它 | ❌ 空/超时 | - | - |
+
+渠道可用性随时会变，所以设置页内置了**一键渠道体检**：并发探测每个渠道的
+「搜索 + 取流」，把结果缓存下来，搜索页的渠道 chip 上直接显示健康指示点。
+
+---
+
+## 四、构建
 
 ```bash
+# 需要 JDK 17 + Android SDK 34
 export JAVA_HOME=/path/to/jdk17
 ./gradlew :app:assembleRelease
 ```
@@ -102,72 +93,75 @@ export JAVA_HOME=/path/to/jdk17
 >         -storepass <你的口令> -keypass <你的口令>
 > ```
 
-### 构建期踩过的坑（改代码前先读）
+### 构建期踩过的两个坑
 
 1. **R8 版本**：AGP 8.5.2 自带的 R8 8.5.35 在 tree-shaking 阶段会抛
-   `ConcurrentModificationException`。根目录 `build.gradle.kts` 里显式覆盖成
-   `com.android.tools:r8:8.7.18` 绕过。
-2. **资源压缩已关闭**：`isShrinkResources = false`。
-3. **Gradle 构建缓存关闭**：`org.gradle.caching=false`，避免增量产物与磁盘状态不一致。
-4. **包名改了要清缓存**：Hilt 的聚合任务会缓存旧的 `android:name`，换包名后
-   必须 `rm -rf app/build` 再构建，否则报 `Could not find class file for 'xxx'`。
-5. **proguard 规则里的包名要跟着改**：`com.coco.music.**` 换成新包名后，
-   序列化保留规则和 `PlaybackService` 保留规则会全部失效——**只会在 release 包炸**。
+   `java.util.ConcurrentModificationException`（开/关 `shrinkResources` 都复现）。
+   根目录 `build.gradle.kts` 里显式覆盖成 `com.android.tools:r8:8.7.18` 绕过。
+2. **资源压缩已关闭**：`isShrinkResources = false`。开启时在部分 AGP 版本上会连带触发
+   资源相关的合并异常，且省下的体积有限（release APK 本身只有 4.1 MB）。
+
+另外 `gradle.properties` 里关掉了 Gradle 构建缓存（`org.gradle.caching=false`），
+避免增量产物与磁盘状态不一致。
 
 ---
 
-## 📂 目录结构
+## 五、开源相关
+
+- **不内置任何服务器地址**：首次启动请到「设置 → 服务器地址」填自己的音源站，
+  没填之前搜索/播放/下载都会提示「未设置音源站地址」
+- **关于页只有一个对外链接**：<https://github.com/r3zound/Mu-Music>
+- `scripts/` 目录：
+  - `gen_icon.py` —— 重新生成启动图标（改配色/形状后 `python3 scripts/gen_icon.py`）
+  - `moresound.js` —— 同一套源的 MusicFree 插件
+  - `test_plugin.mjs` —— 插件离线自测（`node scripts/test_plugin.mjs`，会真打线上接口）
+
+## 六、目录结构
 
 ```
-.
-├── app/                          Android 工程
-│   └── src/main/java/com/r3zound/music/
-│       ├── core/
-│       │   ├── model/MusicItem.kt      领域模型 + 音频格式魔数判定
-│       │   └── util/                   直链安全策略 / 音质解析 / 协程工具
-│       ├── data/
-│       │   ├── remote/                 API 客户端 + 渠道注册表
-│       │   ├── local/                  Room：歌单/收藏/标签/下载任务/历史
-│       │   ├── prefs/SettingsStore.kt  DataStore 全局设置
-│       │   └── repo/                   Music / Favorite / Download 仓库
-│       ├── media/                      Media3 播放核心 + 占位 URI 解析
-│       ├── download/                   WorkManager 下载队列
-│       ├── feature/                    各页面（home/search/favorites/player/...）
-│       └── ui/                         通用组件 / 主题 / 导航
-├── docs/                          开发文档（需求 → 方案 → 逐版本演进）
-├── design/UI设计稿.html            交互设计稿（单文件，可直接浏览器打开）
-├── releases/                      APK / 插件 / 源码快照
-└── scripts/
-    ├── gen_icon.py                重新生成启动图标
-    ├── moresound.js               MusicFree 插件源码
-    └── test_plugin.mjs            插件离线自测（会真打线上接口）
+app/src/main/java/com/r3zound/music/
+├── core/
+│   ├── model/MusicItem.kt        领域模型 + 音频格式魔数判定
+│   └── util/SafeUrl.kt           直链安全策略（强制 https、拒内网）
+├── data/
+│   ├── remote/                   API 客户端 + 渠道注册表
+│   ├── local/                    Room：歌单/收藏/标签/下载任务/历史
+│   ├── prefs/SettingsStore.kt    DataStore 全局设置
+│   └── repo/                     Music / Favorite / Download 仓库
+├── media/                        Media3 播放服务、PlayerHolder、解析型 DataSource
+├── download/                     WorkManager 下载、FileStore、通知
+├── feature/                      search / player / favorites / downloads / settings
+└── ui/                           theme / components / nav
 ```
 
 ---
 
-## 📚 开发文档
+## 七、几个实现上的坑（改代码前先读）
 
-按时间顺序读，能看清这个项目是怎么长出来的：
+1. **直链会过期**。`/api/url` 返回的网易云直链约 30 分钟后 403。
+   播放用 `ResolvingDataSource` 在**真正读取数据时**才解析地址，
+   而不是入队时就固定——否则队列排得靠后的歌会播放失败。
 
-| 文档 | 内容 |
-|---|---|
-| [`01-需求对齐与方案.md`](docs/01-需求对齐与方案.md) | 需求对齐、线上实测、API 契约、架构设计 |
-| [`02-v1.1-新增功能说明.md`](docs/02-v1.1-新增功能说明.md) | 首页分类 / 歌手可点 / 默认收藏 / 封面歌词分页 |
-| [`03-v1.2-修复说明.md`](docs/03-v1.2-修复说明.md) | 换包名、地址留空、深色主题修复、状态栏适配等 |
-| [`04-v1.3-第一批借鉴说明.md`](docs/04-v1.3-第一批借鉴说明.md) | 正在播放高亮 / 定位准星 / 歌词跳转 / 模糊背景 / 睡眠定时 |
-| [`05-v1.4-第二批借鉴说明.md`](docs/05-v1.4-第二批借鉴说明.md) | 播放历史 / 歌词字号偏移 / 滑动切歌 / 分享 |
-| [`06-MusicFree设计对照分析.md`](docs/06-MusicFree设计对照分析.md) | 与 MusicFree 的 20 项逐条对照（含取舍理由） |
-| [`07-MusicFree插件使用说明.md`](docs/07-MusicFree插件使用说明.md) | MusicFree 插件安装与使用 |
-| [`design/UI设计稿.html`](design/UI设计稿.html) | 交互设计稿 |
+2. **代理下载不支持续传**。走 `/api/download` 时失败必须整包重来，
+   所以直链永远是第一选择。
+
+3. **Content-Type 不可信**。代理返回的 `Content-Type` 恒为 `audio/mpeg`，
+   但实测内容是 flac（body 魔数 `fLaC`）。格式必须靠魔数判定。
+
+4. **音质档位不硬编码**。netease 的 `qualityOptions` 有 7 档，
+   但实测 hires / jyeffect / sky / jymaster 四档返回的都是同一个 2000k flac。
+   UI 按服务端返回的真实值展示，不标「超清母带」。
+
+5. **未知渠道静默回落**。见上文「核心设计」。
+
+6. **未知 `provider` 不报错**。服务端对任意 provider 都会返回 netease 的结果，
+   而不是 400。所以必须比对返回项的 `provider` 字段。
 
 ---
 
-## 📄 许可
+## 八、许可
 
-本项目以 **MIT** 协议开源，见 [`LICENSE`](LICENSE)。
+本客户端（Mu 音乐）以 **MIT** 协议开源，见仓库根目录的 `LICENSE`。
+服务端参考实现见 `markcxx/coco-downloader`（MIT）。
 
-服务端参考实现见 [`markcxx/coco-downloader`](https://github.com/markcxx/coco-downloader)（MIT）。
-界面与部分交互设计参考了 [`maotoumao/MusicFree`](https://github.com/maotoumao/MusicFree)（AGPL-3.0）——
-本项目为独立实现，未复制其代码。
-
-> 请使用你有权访问的服务，并遵守所在地法律。
+> 本项目不内置、也不推荐任何特定的音源站。请使用你有权访问的服务。

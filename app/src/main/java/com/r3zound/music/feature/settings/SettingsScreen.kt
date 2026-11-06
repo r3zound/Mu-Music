@@ -1,5 +1,6 @@
 package com.r3zound.music.feature.settings
 
+import androidx.compose.material.icons.outlined.Download
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -199,8 +200,20 @@ fun SettingsScreen(navController: NavHostController) {
                 )
             }
 
-            // ── 下载 ────────────────────────────────────────────────
-            SectionHeader("下载")
+            // ── 下载管理（从设置页进入，不是底栏入口）────────────────
+            SectionHeader("下载管理")
+            SettingsGroup {
+                SettingRow(
+                    icon = Icons.Outlined.Download,
+                    title = "下载管理",
+                    subtitle = "查看下载队列、已下载文件与进度",
+                    onClick = { navController.navigate(Routes.DOWNLOADS) },
+                    trailing = { ArrowIcon() },
+                )
+            }
+
+            // ── 下载偏好 ────────────────────────────────────────────
+            SectionHeader("下载偏好")
             SettingsGroup {
                 SettingRow(
                     icon = Icons.Outlined.Folder,

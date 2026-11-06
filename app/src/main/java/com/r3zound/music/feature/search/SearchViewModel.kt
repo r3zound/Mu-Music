@@ -22,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -72,6 +73,13 @@ data class SearchUiState(
     val favorites: Map<String, Long> = emptyMap(),
     /** 当前正在播放的曲目键（provider:id），用于列表高亮与定位。 */
     val currentSongKey: String? = null,
+    /**
+     * 本次搜索**临时**指定的渠道（首页分类用）。
+     *
+     * 分类搜索不应该改掉体检自动勾选的全局渠道，所以临时渠道只在这一次搜索里生效，
+     * 搜完就清空。
+     */
+    val searchProviders: Set<String> = emptySet(),
     /** 是否处于多选模式。 */
     val selectionMode: Boolean = false,
     /** 多选模式下选中的曲目。 */
@@ -83,7 +91,8 @@ data class SearchUiState(
 ) {
     /** 本次实际参与搜索的渠道，按注册表顺序排列。 */
     val activeProviders: List<String>
-        get() = ProviderRegistry.all.map { it.id }.filter { it in selectedProviders }
+        get() = ProviderRegistry.all.map { it.id }
+            .filter { it in (searchProviders.ifEmpty { selectedProviders }) }
 
     /** 合并去重后的结果，按 (title, artist) 去重。 */
     val mergedItems: List<MusicItem>
@@ -125,6 +134,7 @@ class SearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
+
     /**
      * 长按后屏蔽紧随其后的点击。
      * TrackRow 内部自带 clickable，长按结束后抬手仍会触发一次 onClick，
@@ -133,11 +143,27 @@ class SearchViewModel @Inject constructor(
     private var suppressClickUntil: Long = 0L
 
     init {
-        // 渠道健康度：先渲染缓存，体检一次后覆盖（首次进入体检一次即可）
+        // 渠道健康度：先渲染缓存。
+        // 只有「从未体检过」时才自动跑一次——否则每次进搜索页都覆盖掉
+        // 用户在「渠道体检」页里手动做的勾选调整。
         viewModelScope.launch {
             _uiState.update { it.copy(channels = musicRepository.cachedHealth()) }
-            runCatching { musicRepository.checkChannels() }.onSuccess { infos ->
-                _uiState.update { it.copy(channels = mergeHealth(infos)) }
+            val neverChecked = runCatching { settings.lastHealthCheck.first() }.getOrDefault(0L) <= 0L
+            if (neverChecked) {
+                runCatching { musicRepository.checkChannels() }.onSuccess { infos ->
+                    _uiState.update { it.copy(channels = mergeHealth(infos)) }
+                }
+            }
+        }
+        // 渠道勾选由体检结果自动决定：订阅落库的 enabledProviders，
+        // 体检完自动收敛到「能搜且能取流」的渠道，用户无需手动选。
+        viewModelScope.launch {
+            settings.activeProviders.collect { ids ->
+                _uiState.update {
+                    it.copy(
+                        selectedProviders = ids ?: ProviderRegistry.all.map { p -> p.id }.toSet()
+                    )
+                }
             }
         }
         // 搜索历史
@@ -193,6 +219,8 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         _uiState.update {
             it.copy(
+                // 临时渠道只对这一次生效，搜完就清
+                searchProviders = emptySet(),
                 query = query,
                 submittedQuery = keyword,
                 hasSearched = true,
@@ -251,9 +279,8 @@ class SearchViewModel @Inject constructor(
      */
     fun searchWithProviders(keyword: String, providers: Set<String>) {
         val valid = providers.filter { id -> ProviderRegistry.all.any { it.id == id } }
-        if (valid.isNotEmpty()) {
-            _uiState.update { it.copy(selectedProviders = valid.toSet()) }
-        }
+        // 只影响本次搜索，不动体检自动勾选的全局渠道
+        _uiState.update { it.copy(searchProviders = valid.toSet()) }
         searchKeyword(keyword)
     }
 

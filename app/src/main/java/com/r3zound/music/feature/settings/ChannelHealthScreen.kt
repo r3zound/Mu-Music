@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +76,10 @@ data class ChannelHealthUiState(
     val checkedAt: Long = 0L,
     /** 检测失败原因。 */
     val error: String? = null,
+    /** 参与搜索的渠道（体检结果自动勾选，用户可手动取消某一个）。 */
+    val selectedProviders: Set<String> = emptySet(),
+    /** 是否已经体检过（false = 还没体检，用注册表全集）。 */
+    val checked: Boolean = false,
 )
 
 /**
@@ -86,6 +91,7 @@ data class ChannelHealthUiState(
 @HiltViewModel
 class ChannelHealthViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
+    private val settingsStore: com.r3zound.music.data.prefs.SettingsStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChannelHealthUiState())
@@ -97,6 +103,30 @@ class ChannelHealthViewModel @Inject constructor(
             val cached = runCatching { musicRepository.cachedHealth() }.getOrDefault(emptyList())
             if (cached.isNotEmpty()) _state.update { it.copy(channels = cached) }
         }
+        // 同步「参与搜索的渠道」：体检结果自动勾上，用户也可以手动取消某一个
+        viewModelScope.launch {
+            settingsStore.activeProviders.collect { ids ->
+                _state.update {
+                    it.copy(
+                        selectedProviders = ids ?: ProviderRegistry.all.map { p -> p.id }.toSet(),
+                        checked = ids != null,
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * 手动勾选 / 取消勾选某个渠道。
+     *
+     * 体检结果会自动重置勾选，所以这里的调整只在「下次体检之前」有效；
+     * 但它是必要的逃生舱——某个渠道偶发抽风时，用户可以先把它摘掉。
+     */
+    fun toggleProvider(id: String, enabled: Boolean) {
+        val current = _state.value.selectedProviders
+        val next = if (enabled) current + id else current - id
+        _state.update { it.copy(selectedProviders = next) }
+        viewModelScope.launch { settingsStore.setEnabledProviders(next) }
     }
 
     /** 跑一次全渠道体检。 */
@@ -184,7 +214,14 @@ fun ChannelHealthScreen(navController: NavHostController) {
                 }
             } else {
                 items(channels, key = { it.id }) { info ->
-                    ChannelHealthRow(info = info, loading = state.checking)
+                    ChannelHealthRow(
+                        info = info,
+                        loading = state.checking,
+                        selected = info.id in state.selectedProviders,
+                        // 体检不通过的渠道不允许勾选（勾了也搜不出能播的歌）
+                        selectable = info.health != ChannelHealth.DOWN,
+                        onToggle = { enabled -> viewModel.toggleProvider(info.id, enabled) },
+                    )
                 }
             }
         }
@@ -296,8 +333,15 @@ private fun HealthOverviewCard(state: ChannelHealthUiState) {
             StatBox("取流失败", partial, MuPalette.qualityAmber, Modifier.weight(1f))
             StatBox("不可用", down, MuPalette.ink3, Modifier.weight(1f))
         }
+        Spacer(Modifier.height(10.dp))
+        // 说明：勾选的渠道才会参与搜索，体检通过自动勾上
+        Text(
+            text = "已勾选 ${state.selectedProviders.size} 个渠道参与搜索（体检通过自动勾上，可手动取消）",
+            style = MaterialTheme.typography.bodySmall,
+            color = MuPalette.ink3,
+        )
         state.error?.let {
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
@@ -334,7 +378,13 @@ private fun StatBox(label: String, count: Int, color: Color, modifier: Modifier 
 
 /** 单个渠道行。 */
 @Composable
-private fun ChannelHealthRow(info: ChannelInfo, loading: Boolean) {
+private fun ChannelHealthRow(
+    info: ChannelInfo,
+    loading: Boolean,
+    selected: Boolean,
+    selectable: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
     val dotColor = healthColor(info.health)
     Row(
         modifier = Modifier
@@ -368,6 +418,13 @@ private fun ChannelHealthRow(info: ChannelInfo, loading: Boolean) {
             )
         }
         Spacer(Modifier.width(8.dp))
+        // 勾选框：体检通过的渠道自动勾上，参与搜索
+        Checkbox(
+            checked = selected,
+            onCheckedChange = onToggle,
+            enabled = selectable && !loading,
+            modifier = Modifier.size(26.dp),
+        )
         if (loading) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(

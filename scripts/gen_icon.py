@@ -13,7 +13,8 @@
 import os
 from PIL import Image, ImageDraw
 
-RES = "/workspace/CocoMusic/app/src/main/res"
+import os
+RES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app", "src", "main", "res")
 
 # ── 颜色 ──
 BG_TOP = (26, 29, 40)

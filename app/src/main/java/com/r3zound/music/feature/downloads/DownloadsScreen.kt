@@ -117,7 +117,7 @@ fun DownloadsScreen(navController: NavHostController) {
         DownloadTabRow(state = state, onSelect = { viewModel.selectTab(it) })
 
         Box(Modifier.weight(1f)) {
-            val goSearch: () -> Unit = { navController.navigate(Routes.SEARCH) }
+            val goSearch: () -> Unit = { navController.navigate(Routes.HOME) }
             when (state.tab) {
                 DownloadTab.ACTIVE -> ActiveTaskList(state = state, viewModel = viewModel, onSearch = goSearch)
                 DownloadTab.COMPLETED -> CompletedTaskList(

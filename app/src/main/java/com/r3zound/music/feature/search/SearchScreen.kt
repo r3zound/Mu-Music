@@ -78,7 +78,6 @@ import com.r3zound.music.data.remote.ProviderRegistry
 import com.r3zound.music.ui.actions.SongActionsViewModel
 import com.r3zound.music.ui.components.CheckBox
 import com.r3zound.music.ui.components.PlayingLocator
-import com.r3zound.music.ui.components.ChannelChip
 import com.r3zound.music.ui.components.CoverImage
 import com.r3zound.music.ui.components.EmptyState
 import com.r3zound.music.ui.components.IconAction
@@ -106,26 +105,35 @@ private val HOT_ARTISTS = listOf("周杰伦", "孙燕姿", "林俊杰", "陈奕�
 @Composable
 fun SearchScreen(
     navController: NavHostController,
-    /** 从首页分类 / 外部跳转带进来的初始关键词，非空时自动搜一次。 */
-    initialKeyword: String = "",
-    /** 从首页分类带过来的渠道限定。 */
-    initialProviders: Set<String> = emptySet(),
     viewModel: SearchViewModel = hiltViewModel(),
     songActions: SongActionsViewModel = hiltViewModel(),
+) {
+    SearchContent(
+        navController = navController,
+        viewModel = viewModel,
+        songActions = songActions,
+    )
+}
+
+/**
+ * 搜索内容（可嵌入）。
+ *
+ * 搜索是**首页的一个子版块**，没有独立路由了，所以这里做成一个能塞进
+ * 任意容器的 composable。
+ */
+@Composable
+fun SearchContent(
+    navController: NavHostController,
+    viewModel: SearchViewModel = hiltViewModel(),
+    songActions: SongActionsViewModel = hiltViewModel(),
+    /** 首页搜索子版块里不需要标题（外层已经有 tab 栏了）。 */
+    showTitle: Boolean = true,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val playlists by viewModel.playlists.collectAsStateWithLifecycle()
     val tagOptions by songActions.tagOptions.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
-    // 带关键词进来的（首页分类、点歌手）：自动搜一次
-    LaunchedEffect(initialKeyword, initialProviders) {
-        if (initialKeyword.isNotBlank()) {
-            viewModel.searchWithProviders(initialKeyword, initialProviders)
-        }
-    }
-
-    var showFilter by remember { mutableStateOf(false) }
     var showPlaylistPicker by remember { mutableStateOf(false) }
     /** 批量打标签的弹窗 */
     var showBatchTagPicker by remember { mutableStateOf(false) }
@@ -137,10 +145,15 @@ fun SearchScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        SearchTopBar(
-            onFilter = { showFilter = true },
-            onSettings = { navController.navigate(Routes.SETTINGS) },
-        )
+        if (showTitle) {
+            Text(
+                text = "搜索",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 2.dp),
+            )
+        }
 
         SearchField(
             value = state.query,
@@ -166,13 +179,6 @@ fun SearchScreen(
                 onPick = { viewModel.searchKeyword(it) },
             )
         }
-
-        ChannelChipRow(
-            channels = state.channels,
-            selected = state.selectedProviders,
-            onToggle = viewModel::toggleProvider,
-            onSelectAll = viewModel::selectAllProviders,
-        )
 
         SegmentedSwitch(
             mode = state.groupMode,
@@ -228,17 +234,6 @@ fun SearchScreen(
         }
     }
 
-    if (showFilter) {
-        FilterDialog(
-            channels = state.channels,
-            selected = state.selectedProviders,
-            onConfirm = { ids ->
-                viewModel.setProviders(ids)
-                showFilter = false
-            },
-            onDismiss = { showFilter = false },
-        )
-    }
 
     if (showPlaylistPicker) {
         PlaylistPickerDialog(
@@ -271,65 +266,6 @@ fun SearchScreen(
             },
             onCreate = { name -> songActions.createTagForItems(name, items) },
         )
-    }
-}
-
-/** 顶部标题栏：标题 + 筛选 + 设置。 */
-@Composable
-private fun SearchTopBar(
-    onFilter: () -> Unit,
-    onSettings: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 10.dp, top = 12.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "搜索",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
-        IconAction(icon = Icons.Outlined.Tune, tint = MuPalette.ink2, onClick = onFilter)
-        Spacer(Modifier.width(4.dp))
-        IconAction(icon = Icons.Outlined.Settings, tint = MuPalette.ink2, onClick = onSettings)
-    }
-}
-
-/** 渠道 chip 行（横向滚动）：第一个是「全部」，其余来自渠道注册表。 */
-@Composable
-private fun ChannelChipRow(
-    channels: List<ChannelInfo>,
-    selected: Set<String>,
-    onToggle: (String) -> Unit,
-    onSelectAll: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val allSelected = channels.isNotEmpty() && selected.size == channels.size
-    LazyRow(
-        modifier = modifier.padding(vertical = 8.dp),
-        contentPadding = PaddingValues(horizontal = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
-    ) {
-        item(key = "all") {
-            ChannelChip(
-                // 「全部」没有健康指示点
-                channel = ChannelInfo(id = "all", name = "全部"),
-                selected = allSelected,
-                onClick = onSelectAll,
-            )
-        }
-        items(channels, key = { it.id }) { channel ->
-            ChannelChip(
-                channel = channel,
-                selected = channel.id in selected,
-                onClick = { onToggle(channel.id) },
-            )
-        }
     }
 }
 

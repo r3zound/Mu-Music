@@ -8,7 +8,7 @@
  */
 import { readFileSync } from 'node:fs';
 
-const CODE = readFileSync('/workspace/moresound.js', 'utf8');
+const CODE = readFileSync(new URL('./moresound.js', import.meta.url), 'utf8');
 
 // ── 模拟 MusicFree 的运行时 ──
 const axiosLike = {

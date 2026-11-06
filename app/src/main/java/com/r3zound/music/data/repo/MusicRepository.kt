@@ -79,6 +79,13 @@ class MusicRepository @Inject constructor(
      * 渠道体检：并发探测每个渠道的「搜索 + 取流」，
      * 输出健康报告并缓存，供 UI 的渠道健康指示点使用。
      */
+    /**
+     * 渠道体检。
+     *
+     * 体检结果会**自动决定参与搜索的渠道**：能搜且能取流的渠道自动勾上，
+     * 其余的自动排除，写进 [SettingsStore.enabledProviders]。
+     * 用户不需要在搜索页手动挑渠道。
+     */
     suspend fun checkChannels(providers: List<String> = ProviderRegistry.all.map { it.id }): List<ChannelInfo> {
         val base = baseUrl()
         val results = coroutineScope {
@@ -129,7 +136,20 @@ class MusicRepository @Inject constructor(
                 }
             }.awaitAll()
         }
+        // 体检结果直接决定搜索时勾选哪些渠道，用户不用手动挑
+        applyHealthResult(results)
         return results
+    }
+
+    /**
+     * 把体检结果落库：勾选可用渠道 + 记录体检时间。
+     *
+     * 由 [checkChannels] 在拿到结果后调用。
+     */
+    suspend fun applyHealthResult(infos: List<ChannelInfo>) {
+        val usable = infos.filter { it.health == ChannelHealth.OK }.map { it.id }.toSet()
+        settings.setEnabledProviders(usable)
+        settings.setLastHealthCheck(System.currentTimeMillis())
     }
 
     suspend fun cachedHealth(): List<ChannelInfo> = healthLock.withLock {

@@ -1,6 +1,5 @@
 package com.r3zound.music.ui.nav
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -12,21 +11,31 @@ import com.r3zound.music.feature.downloads.DownloadsScreen
 import com.r3zound.music.feature.favorites.FavoritesScreen
 import com.r3zound.music.feature.favorites.PlaylistDetailScreen
 import com.r3zound.music.feature.home.HomeScreen
+import com.r3zound.music.feature.lists.PlaylistsScreen
 import com.r3zound.music.feature.player.PlayerScreen
 import com.r3zound.music.feature.player.QueueScreen
-import com.r3zound.music.feature.search.SearchScreen
 import com.r3zound.music.feature.settings.ChannelHealthScreen
 import com.r3zound.music.feature.settings.SettingsScreen
 
 object Routes {
+    /**
+     * 首页。
+     *
+     * 搜索是首页的一个子版块（「发现 / 搜索」），所以没有独立的搜索路由。
+     * 跨页面触发搜索走 [SearchNavState]，避免生成新的 back stack entry
+     * 把搜索结果的上下文切断。
+     */
     const val HOME = "home"
-    const val SEARCH = "search"
 
-    /** 带初始关键词的搜索页。用于「点歌手」「点分类」「点历史」等跳转。 */
-    const val SEARCH_KEYWORD = "search/keyword/{keyword}?providers={providers}"
+    /** 播放列表：我的歌单 + 最近播放。 */
+    const val PLAYLISTS = "playlists"
 
+    /** 收藏：全部歌曲 + 标签。 */
     const val FAVORITES = "favorites"
+
+    /** 下载管理（从设置页进入，不是底栏入口）。 */
     const val DOWNLOADS = "downloads"
+
     const val SETTINGS = "settings"
     const val PLAYER = "player"
     const val CHANNEL_HEALTH = "channel_health"
@@ -34,14 +43,6 @@ object Routes {
     const val QUEUE = "queue"
 
     fun playlistDetail(id: Long) = "playlist/$id"
-
-    /** 跳到搜索页并自动用该关键词搜一次。 */
-    fun searchWithKeyword(keyword: String): String =
-        "search/keyword/${Uri.encode(keyword)}"
-
-    /** 跳到搜索页，并限定参与检索的渠道（首页分类用）。 */
-    fun searchWithKeyword(keyword: String, providers: List<String>): String =
-        "search/keyword/${Uri.encode(keyword)}?providers=${providers.joinToString(",")}"
 }
 
 @Composable
@@ -50,31 +51,7 @@ fun MuNavHost(
 ) {
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) { HomeScreen(navController) }
-        composable(Routes.SEARCH) { SearchScreen(navController) }
-        composable(
-            route = Routes.SEARCH_KEYWORD,
-            arguments = listOf(
-                navArgument("keyword") { type = NavType.StringType },
-                navArgument("providers") {
-                    type = NavType.StringType
-                    defaultValue = ""
-                },
-            ),
-        ) { entry ->
-            val keyword = entry.arguments?.getString("keyword").orEmpty()
-            // 查询参数由 Uri.getQueryParameters() 取出，已是解码后的原值
-            val providers = entry.arguments?.getString("providers")
-                .orEmpty()
-                .split(',')
-                .map { it.trim() }
-                .filter { it.isNotBlank() }
-                .toSet()
-            SearchScreen(
-                navController = navController,
-                initialKeyword = keyword,
-                initialProviders = providers,
-            )
-        }
+        composable(Routes.PLAYLISTS) { PlaylistsScreen(navController) }
         composable(Routes.FAVORITES) { FavoritesScreen(navController) }
         composable(Routes.DOWNLOADS) { DownloadsScreen(navController) }
         composable(Routes.SETTINGS) { SettingsScreen(navController) }

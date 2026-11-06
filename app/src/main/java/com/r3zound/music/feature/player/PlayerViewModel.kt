@@ -62,6 +62,21 @@ class PlayerViewModel @Inject constructor(
     /** 取消睡眠定时器。 */
     fun cancelSleepTimer() = playerHolder.cancelSleepTimer()
 
+    // ── 播放队列存成歌单 ────────────────────────────────────────
+
+    /**
+     * 把当前播放队列存成一个新歌单。
+     *
+     * @return 新歌单的 id；队列为空时返回 null。
+     */
+    suspend fun saveQueueAsPlaylist(name: String): Long? {
+        val queue = playerHolder.state.value.queue
+        if (queue.isEmpty()) return null
+        val playlistId = favoriteRepository.createPlaylist(name)
+        favoriteRepository.addFavoritesToPlaylist(playlistId, queue)
+        return playlistId
+    }
+
     private val _ui = MutableStateFlow(PlayerUiState())
     val ui: StateFlow<PlayerUiState> = _ui.asStateFlow()
 

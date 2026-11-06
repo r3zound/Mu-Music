@@ -539,3 +539,41 @@ fun FavoriteIcon(filled: Boolean) {
 fun PlayIcon(tint: Color = MaterialTheme.colorScheme.onSurface, size: Dp = 16.dp) {
     Icon(Icons.Filled.PlayArrow, contentDescription = null, tint = tint, modifier = Modifier.size(size))
 }
+
+/**
+ * 通用 tab 项（带下划线指示）。
+ *
+ * 收藏页、播放列表页、首页都用它，保证几个页面切换的视觉一致。
+ */
+@Composable
+fun FavTab(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier
+            .padding(end = 18.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 2.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) MaterialTheme.colorScheme.primary else MuPalette.ink3,
+        )
+        Spacer(Modifier.height(6.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(
+                    if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    RoundedCornerShape(1.dp),
+                )
+        )
+    }
+}

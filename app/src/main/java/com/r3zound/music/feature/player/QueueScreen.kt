@@ -21,12 +21,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.QueueMusic
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +50,7 @@ import com.r3zound.music.core.model.MusicItem
 import com.r3zound.music.ui.components.CoverImage
 import com.r3zound.music.ui.components.EmptyState
 import com.r3zound.music.ui.theme.MuPalette
+import kotlinx.coroutines.launch
 
 /**
  * 播放队列页。
@@ -55,6 +64,26 @@ fun QueueScreen(navController: NavHostController) {
     val playback by vm.playback.collectAsStateWithLifecycle()
     val queue = playback.queue
     val currentIndex = playback.index
+
+    var showSaveSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    if (showSaveSheet) {
+        SaveQueueDialog(
+            count = queue.size,
+            onDismiss = { showSaveSheet = false },
+            onConfirm = { name ->
+                showSaveSheet = false
+                scope.launch {
+                    val id = vm.saveQueueAsPlaylist(name)
+                    if (id != null) {
+                        snackbarHostState.showSnackbar("已存为歌单")
+                    }
+                }
+            },
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -82,6 +111,18 @@ fun QueueScreen(navController: NavHostController) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(9.dp))
+                    .clickable(enabled = queue.isNotEmpty()) { showSaveSheet = true }
+                    .padding(horizontal = 10.dp, vertical = 7.dp),
+            ) {
+                Text(
+                    text = "存为歌单",
+                    fontSize = 12.5.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(9.dp))
@@ -133,6 +174,47 @@ fun QueueScreen(navController: NavHostController) {
  *
  * 当前播放项用主色竖条 + 主色标题高亮，右侧是删除按钮。
  */
+/** 「把队列存成歌单」的对话框。 */
+@Composable
+private fun SaveQueueDialog(
+    count: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    var name by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("存为歌单") },
+        text = {
+            Column {
+                Text(
+                    text = "把当前播放队列的 $count 首歌存成一个新歌单。",
+                    fontSize = 13.sp,
+                    color = MuPalette.ink2,
+                )
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("歌单名称") },
+                    placeholder = { Text("例如：通勤路上") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = { onConfirm(name.trim()) },
+            ) { Text("保存") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("取消") }
+        },
+    )
+}
+
 @Composable
 private fun QueueRow(
     item: MusicItem,

@@ -1,5 +1,6 @@
 package com.r3zound.music.data.prefs
 
+import androidx.datastore.preferences.core.longPreferencesKey
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -32,6 +33,10 @@ class SettingsStore @Inject constructor(
         val THEME = stringPreferencesKey("theme_mode")
         val NOTIFICATION = booleanPreferencesKey("notification_enabled")
         val LYRIC_FONT_SIZE = intPreferencesKey("lyric_font_size")
+        /** 体检后自动勾选的渠道（逗号分隔）。空表示还没体检过，用默认全集。 */
+        val ENABLED_PROVIDERS = stringPreferencesKey("enabled_providers")
+        /** 上次体检时间戳。 */
+        val LAST_HEALTH_CHECK = longPreferencesKey("last_health_check")
         /** 歌词时间偏移（毫秒），按曲目分别存：key = "lyric_offset_<provider>_<id>" */
         val LYRIC_OFFSET_PREFIX = "lyric_offset_"
     }
@@ -62,6 +67,44 @@ class SettingsStore @Inject constructor(
 
     val notificationEnabled: Flow<Boolean> = context.dataStore.data.map { it[Keys.NOTIFICATION] ?: true }
 
+    /**
+     * 参与搜索的渠道。
+     *
+     * 由「渠道体检」的结果自动决定：体检通过（能搜 + 能取流）的渠道自动勾上，
+     * 不可用的自动排除。用户不需要在搜索页手动挑渠道。
+     * 值为空表示**还没体检过**，此时用注册表全集（首次启动会自动体检一次）。
+     */
+    val enabledProviders: Flow<Set<String>> = context.dataStore.data.map { prefs ->
+        val raw = prefs[Keys.ENABLED_PROVIDERS].orEmpty()
+        if (raw.isBlank()) {
+            emptySet()
+        } else {
+            raw.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+        }
+    }
+
+    /** 上次渠道体检的时间戳；0 表示从未体检。 */
+    val lastHealthCheck: Flow<Long> = context.dataStore.data.map { it[Keys.LAST_HEALTH_CHECK] ?: 0L }
+
+    /**
+     * 实际参与搜索的渠道。
+     *
+     * - `null` → **还没体检过**，此时用注册表全集（首次启动会自动体检一次）
+     * - 非 null → 体检结果勾选的渠道集合（可能为空，表示全都不可用）
+     */
+    val activeProviders: Flow<Set<String>?> = context.dataStore.data.map { prefs ->
+        val checkedAt = prefs[Keys.LAST_HEALTH_CHECK] ?: 0L
+        if (checkedAt <= 0L) {
+            null
+        } else {
+            prefs[Keys.ENABLED_PROVIDERS].orEmpty()
+                .split(',')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toSet()
+        }
+    }
+
     /** 歌词字号（sp），全局生效。 */
     val lyricFontSize: Flow<Int> = context.dataStore.data.map { it[Keys.LYRIC_FONT_SIZE] ?: DEFAULT_LYRIC_FONT_SIZE }
 
@@ -84,6 +127,20 @@ class SettingsStore @Inject constructor(
     suspend fun setThemeMode(mode: ThemeMode) = context.dataStore.edit { it[Keys.THEME] = mode.name }
 
     suspend fun setNotificationEnabled(value: Boolean) = context.dataStore.edit { it[Keys.NOTIFICATION] = value }
+
+    /**
+     * 保存体检后自动勾选的渠道。
+     *
+     * @param ids 勾选中的渠道 id；传空集合表示「一个都没勾」（全禁用）。
+     */
+    suspend fun setEnabledProviders(ids: Set<String>) = context.dataStore.edit {
+        it[Keys.ENABLED_PROVIDERS] = ids.sorted().joinToString(",")
+    }
+
+    /** 记录体检时间。 */
+    suspend fun setLastHealthCheck(ts: Long) = context.dataStore.edit {
+        it[Keys.LAST_HEALTH_CHECK] = ts
+    }
 
     /** 设置歌词字号（sp）。 */
     suspend fun setLyricFontSize(size: Int) = context.dataStore.edit {

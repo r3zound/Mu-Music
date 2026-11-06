@@ -1,5 +1,7 @@
 package com.r3zound.music
 
+import androidx.compose.material.icons.outlined.QueueMusic
+import androidx.compose.material.icons.filled.QueueMusic
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -106,11 +108,16 @@ private data class NavItem(
     val icon: ImageVector,
 )
 
+/**
+ * 底栏导航项。
+ *
+ * - 「搜索」不再是独立入口，合并进首页的「搜索」子版块
+ * - 「下载」不再是独立入口，合并进设置页
+ */
 private val navItems = listOf(
     NavItem(Routes.HOME, "首页", Icons.Filled.Home, Icons.Outlined.Home),
-    NavItem(Routes.SEARCH, "搜索", Icons.Filled.Search, Icons.Outlined.Search),
+    NavItem(Routes.PLAYLISTS, "播放列表", Icons.Filled.QueueMusic, Icons.Outlined.QueueMusic),
     NavItem(Routes.FAVORITES, "收藏", Icons.Filled.Bookmark, Icons.Outlined.BookmarkBorder),
-    NavItem(Routes.DOWNLOADS, "下载", Icons.Filled.Download, Icons.Outlined.Download),
     NavItem(Routes.SETTINGS, "设置", Icons.Filled.Settings, Icons.Outlined.Settings),
 )
 

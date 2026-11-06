@@ -1,5 +1,10 @@
 package com.r3zound.music.feature.home
 
+import com.r3zound.music.ui.nav.SearchRequest
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +27,6 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Dns
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,8 +44,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.r3zound.music.ui.components.IconAction
+import com.r3zound.music.ui.components.FavTab
+import com.r3zound.music.feature.search.SearchContent
+import com.r3zound.music.feature.search.SearchViewModel
 import com.r3zound.music.ui.components.SectionHeader
 import com.r3zound.music.ui.nav.Routes
+import com.r3zound.music.ui.nav.SearchNavState
+import com.r3zound.music.ui.nav.rememberSearchNavState
 import com.r3zound.music.ui.theme.MuPalette
 
 /**
@@ -51,20 +60,103 @@ import com.r3zound.music.ui.theme.MuPalette
  * 点分类会带着「该分类的关键词 + 渠道组合」跳到搜索页，
  * 直接复用搜索页已有的渠道筛选、分组、质量选择与批量操作。
  */
+/** 首页的子版块。 */
+enum class HomeTab {
+    /** 发现：快捷入口 + 分类 + 最近搜索 */
+    DISCOVER,
+
+    /** 搜索：搜索框 + 历史 + 结果 */
+    SEARCH,
+}
+
 @Composable
 fun HomeScreen(
     navController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel(),
+    searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchNavState = rememberSearchNavState()
+    var tab by remember { mutableStateOf(HomeTab.DISCOVER) }
+
+    // 其他页面（收藏页、歌单详情页…）点歌手名/分类时发起的跨页面搜索请求。
+    // 搜索在首页的子版块里，所以这里负责切 tab 并执行搜索。
+    LaunchedEffect(Unit) {
+        searchNavState.request.collect { req: SearchRequest? ->
+            if (req != null) {
+                tab = HomeTab.SEARCH
+                searchViewModel.searchWithProviders(req.keyword, req.providers)
+                searchNavState.consume()
+            }
+        }
+    }
 
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        HomeTopBar(onSettings = { navController.navigate(Routes.SETTINGS) })
+        HomeTabRow(
+            tab = tab,
+            onSelect = { tab = it },
+        )
 
+        when (tab) {
+            HomeTab.DISCOVER -> DiscoverContent(
+                navController = navController,
+                state = state,
+                viewModel = viewModel,
+                searchNavState = searchNavState,
+            )
+
+            HomeTab.SEARCH -> SearchContent(
+                navController = navController,
+                viewModel = searchViewModel,
+                showTitle = false,
+            )
+        }
+    }
+}
+
+/** 首页的 tab 行：「发现 / 搜索」。 */
+@Composable
+private fun HomeTabRow(
+    tab: HomeTab,
+    onSelect: (HomeTab) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        FavTab(
+            label = "发现",
+            selected = tab == HomeTab.DISCOVER,
+            onClick = { onSelect(HomeTab.DISCOVER) },
+        )
+        FavTab(
+            label = "搜索",
+            selected = tab == HomeTab.SEARCH,
+            onClick = { onSelect(HomeTab.SEARCH) },
+        )
+    }
+}
+
+/** 「发现」子版块的内容。 */
+@Composable
+private fun DiscoverContent(
+    navController: NavHostController,
+    state: HomeUiState,
+    viewModel: HomeViewModel,
+    searchNavState: SearchNavState,
+) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+    ) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 18.dp),
@@ -83,7 +175,7 @@ fun HomeScreen(
                         if (id > 0L) navController.navigate(Routes.playlistDetail(id))
                     },
                     onFavorites = { navController.navigate(Routes.FAVORITES) },
-                    onDownloads = { navController.navigate(Routes.DOWNLOADS) },
+                    onPlaylists = { navController.navigate(Routes.PLAYLISTS) },
                 )
             }
 
@@ -107,15 +199,11 @@ fun HomeScreen(
                                     category = category,
                                     modifier = Modifier.weight(1f),
                                     onClick = {
-                                        navController.navigate(
-                                            Routes.searchWithKeyword(
-                                                keyword = viewModel.keywordFor(category),
-                                                providers = category.providers,
-                                            )
-                                        ) {
-                                            // 同一个分类连点两次不要压出两层同样的页面
-                                            launchSingleTop = true
-                                        }
+                                        // 搜索是首页的子版块，直接切过去搜，不做路由跳转
+                                        searchNavState.request(
+                                            keyword = viewModel.keywordFor(category),
+                                            providers = category.providers.toSet(),
+                                        )
                                     },
                                 )
                             }
@@ -138,7 +226,7 @@ fun HomeScreen(
                 item(key = "recent") {
                     RecentKeywordRow(
                         keywords = state.recentKeywords,
-                        onPick = { navController.navigate(Routes.searchWithKeyword(it)) },
+                        onPick = { searchNavState.request(it) },
                     )
                 }
             }
@@ -147,30 +235,10 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeTopBar(onSettings: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 10.dp, top = 12.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "发现",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
-        IconAction(icon = Icons.Outlined.Settings, tint = MuPalette.ink2, onClick = onSettings)
-    }
-}
-
-/** 快捷入口：最近播放 / 我的收藏 / 下载管理。 */
-@Composable
 private fun ShortcutRow(
     onDefaultPlaylist: () -> Unit,
     onFavorites: () -> Unit,
-    onDownloads: () -> Unit,
+    onPlaylists: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -193,8 +261,8 @@ private fun ShortcutRow(
         )
         ShortcutTile(
             icon = Icons.Filled.QueueMusic,
-            label = "下载管理",
-            onClick = onDownloads,
+            label = "播放列表",
+            onClick = onPlaylists,
             modifier = Modifier.weight(1f),
         )
     }
